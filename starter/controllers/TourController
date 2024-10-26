@@ -1,0 +1,78 @@
+const fs = require('fs');
+const tours = JSON.parse(fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`)); 
+
+
+function checkTourId(req, res, next, val) {
+
+    console.log(`Tour id is ${val}`);
+    const id = req.params.id * 1;
+    const requiredTour = tours.find(el => el.id === id);
+    if (!requiredTour) {
+      res.status(404).json({
+        status: 'Fail',
+        message: 'Invalid ID verified by midle ware' 
+      });
+      return
+    } else {
+        next();
+    }
+}
+
+ function getTours(req, res) {
+    res.status(200).json({
+      status: 'success',
+      requestTime: req.requestTime4,
+      results: tours.length,
+      data: {'tours': [tours]
+             }
+    });
+  }
+  
+   function createTour(req, res) {
+    console.log(req.body);
+  
+    const newID = tours.length + 1;
+    const newTour = Object.assign({id: newID}, req.body);
+  
+    tours.push(newTour);
+  
+    fs.writeFile(`${__dirname}/dev-data/data/tours-simple.json`, JSON.stringify(tours), (err) => {
+      res.status(200).json({
+        status: 'success',
+        message: 'Successfully completed tour'
+      });
+    });
+  }
+  
+   function getTourById(req, res) {
+    const id = req.params.id * 1;
+    const requiredTour = tours.find(el => el.id === id);  
+    res.status(200).json({
+      status: 'success',
+      requestTime: req.requestTime4,
+      data: requiredTour 
+         
+    });
+  }
+  
+   function updateTour(req, res) {
+  
+      res.status(204).json({
+        status: 'success',
+        message: 'Tours successfully updated'
+      });
+  }
+  
+   function deleteTour(req, res) {
+    const tourIds = req.params.name * 1; 
+    const tourId = req.params.id * 1;
+    const requireTour = tours.find(el => el.id === tourId);
+  
+    console.log(tourIds);
+      res.status(204).json({
+        status: 'success',
+        message: 'Tours successfully deleted'
+      });  
+  }
+
+  module.exports = { getTours, createTour, getTourById, updateTour, deleteTour, checkTourId};
