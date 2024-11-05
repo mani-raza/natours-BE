@@ -1,10 +1,33 @@
 const Tour = require('./../Models/TourModel');
+const ApiFeatures = require('./../Utils/ApiFeatures');
+
+function top5CheepTourAlias(req, res, next) { 
+  req.query.limit = '9';
+  req.query.sort = 'price,-ratingsAverage';
+  req.query.fields = 'name,price,ratingsAverage';
+  next();
+}
 
 
 async function getTours(req, res) {
 
   try {
-    const tours = await Tour.find();
+
+    //let query = Tour.find();
+
+    const apiFeatures = new ApiFeatures(Tour.find(), req.query);
+   
+    apiFeatures
+    .paginate()
+      .filter()
+      .sort()
+      .limit();
+
+      console.log('apiFeatures.quer');
+
+      console.log(apiFeatures.query);
+
+    const tours = await apiFeatures.query;
     res.status(200).json({
       status: 'success',
       results: tours.length,
@@ -105,4 +128,4 @@ async function getTours(req, res) {
 
   }
 
-  module.exports = { getTours, createTour, getTourById, updateTour, deleteTour};
+  module.exports = { getTours, createTour, getTourById, updateTour, deleteTour, top5CheepTourAlias};
